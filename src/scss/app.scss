@@ -24,3 +24,13 @@
 
 /* Demo Page styles */
 @import 'demo';
+
+
+canvas[data-engine='three.js r145'] {
+    position: absolute;
+    z-index: 9;
+    width: 1280px !important;
+    height: 720px !important;
+    top: 0;
+  }
+  

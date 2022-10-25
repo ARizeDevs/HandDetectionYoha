@@ -28,7 +28,7 @@ const htmlPluginEntries = templateFiles.map((template) => new HTMLWebpackPlugin(
 
 module.exports = {
   entry: {
-    app: path.resolve(environment.paths.source, 'js', 'app.js'),
+    app: path.resolve(environment.paths.source,  'app.js'),
   },
   output: {
     filename: 'js/[name].js',
@@ -137,6 +137,8 @@ module.exports = {
             ignore: ['*.DS_Store', 'Thumbs.db'],
           },
         },
+        {from: 'node_modules/@tensorflow/tfjs-backend-wasm/dist/*.wasm'},
+        {from: 'node_modules/@handtracking.io/yoha/models/', to: './'},
         {from: 'node_modules/@handtracking.io/yoha/', to: 'yoha/'},
         // Required for github pages...
         {from: 'node_modules/coi-serviceworker/coi-serviceworker.min.js', to: './'},

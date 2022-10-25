@@ -82,6 +82,7 @@
   "target": "web",
   "dependencies": {
     "@handtracking.io/yoha": "^1.2.0",
-    "coi-serviceworker": "^0.1.6"
+    "coi-serviceworker": "^0.1.6",
+    "three": "^0.145.0"
   }
 }
