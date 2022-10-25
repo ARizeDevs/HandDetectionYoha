@@ -80,5 +80,8 @@
     "stats": "webpack --config configuration/webpack.prod.config.js --mode=production --json > dist/stats.json && webpack-bundle-analyzer dist/stats.json"
   },
   "target": "web",
-  "dependencies": {}
+  "dependencies": {
+    "@handtracking.io/yoha": "^1.2.0",
+    "coi-serviceworker": "^0.1.6"
+  }
 }

@@ -34,6 +34,10 @@ module.exports = {
     filename: 'js/[name].js',
     path: environment.paths.output,
   },
+  devServer: {
+    server: 'https',
+  },
+
   module: {
     rules: [
       {
@@ -119,6 +123,8 @@ module.exports = {
           globOptions: {
             ignore: ['*.DS_Store', 'Thumbs.db'],
           },
+          
+
         },
         {
           from: path.resolve(environment.paths.source, 'videos'),
@@ -128,6 +134,9 @@ module.exports = {
             ignore: ['*.DS_Store', 'Thumbs.db'],
           },
         },
+        {from: 'node_modules/@handtracking.io/yoha/', to: 'yoha/'},
+        // Required for github pages...
+        {from: 'node_modules/coi-serviceworker/coi-serviceworker.min.js', to: './'},
       ],
     }),
   ].concat(htmlPluginEntries),
