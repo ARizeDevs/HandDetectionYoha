@@ -61,7 +61,11 @@ async function Run() {
       scene.add(sphere);
       spheres.push(sphere);
   }
-;
+
+    const geometry = new THREE.TorusGeometry( 0.12, 0.01, 16, 100 );
+    const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+    const torus = new THREE.Mesh( geometry, material );
+    scene.add( torus );
 
   // Note the 'wasmPath' argument. This has to be in sync with how you serve the respective
   // files. See webpack.config.js for an example.
@@ -79,9 +83,10 @@ async function Run() {
     if (res.isHandPresentProb > 0.5) {
       // SetCursorVisibility(false);
       // console.log(res);
-      spheres.forEach((sphere, i) => {
 
-        const [ x, y] = res.coordinates[i];
+
+      spheres.forEach((sphere, i) => {
+     const [ x, y] = res.coordinates[i];
 
 
         let vec = new THREE.Vector3();
@@ -94,15 +99,21 @@ async function Run() {
         vec.unproject(camera);
         vec.sub(camera.position).normalize();
         let distance = -camera.position.z / vec.z;
-        console.log(distance);
         pos.copy(camera.position).add(vec.multiplyScalar(distance));
         sphere.position.x = -pos.x;
         sphere.position.y = pos.y;
         // sphere.position.z = ;
   
-        // const scale = (distance) - 2 ;
-        // sphere.position.z = scale;
-    
+        const scale = ((distance) - 2) / 20 ;
+        sphere.position.z = scale;
+        // console.log(scale);
+
+        if(i == 20 ){
+          console.log('here i am' );
+          torus.position.x = -pos.x;
+          torus.position.y = pos.y;
+          torus.position.z = 0;
+        }
 
         sphere.visible = true;
         // sphere.position.set(handWorldLandmarks[i].x, -handWorldLandmarks[i].y, -handWorldLandmarks[i].z);
