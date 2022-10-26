@@ -83,11 +83,10 @@ async function Run() {
     if (res.isHandPresentProb > 0.5) {
       // SetCursorVisibility(false);
       // console.log(res);
-
+      // console.log(res);
 
       spheres.forEach((sphere, i) => {
-     const [ x, y] = res.coordinates[i];
-
+      const [ x, y] = res.coordinates[i];
 
         let vec = new THREE.Vector3();
         let pos = new THREE.Vector3();
@@ -107,13 +106,19 @@ async function Run() {
         const scale = ((distance) - 2) / 20 ;
         sphere.position.z = scale;
         // console.log(scale);
+        // console.log(scale);
 
         if(i == 20 ){
-          console.log('here i am' );
+          console.log("wrist = " + scale)
           torus.position.x = -pos.x;
           torus.position.y = pos.y;
-          torus.position.z = 0;
+          torus.position.z = scale;
         }
+
+        if(i == 3){
+          console.log("Bilhagh : " + scale);
+        }
+
 
         sphere.visible = true;
         // sphere.position.set(handWorldLandmarks[i].x, -handWorldLandmarks[i].y, -handWorldLandmarks[i].z);
