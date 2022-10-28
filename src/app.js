@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import * as yoha from '@handtracking.io/yoha';
 import { SetCursorColor, SetCursorPosition, SetCursorVisibility, InitializeCursor } from './cursor';
 import dist from 'webpack-merge';
+import { Vector3 } from 'three';
 
 async function Run() {
   // Download models.
@@ -18,11 +19,11 @@ async function Run() {
     '/lan/model.json', 
     (rec, total) => {
       console.log('Download progress: ' + (rec / total) * 100 + '%');
-    }
-  );
+    });
 
+  // const model = await handpose.load();
 
-   // Setup video feed.
+  // Setup video feed.
   const streamRes = await yoha.CreateMaxFpsMaxResStream();
   if (streamRes.error) { 
     // Non-production ready error handling...
@@ -30,6 +31,20 @@ async function Run() {
     return ;
   }
   const video = yoha.CreateVideoElementFromStream(streamRes.stream);
+  video.id = "videoInput";
+
+  const stream = await navigator.mediaDevices.getUserMedia({
+    'audio': false,
+    'video': {
+      facingMode: 'user'
+      // Only setting the video to a specified size in order to accommodate a
+      // point cloud, so on mobile devices accept the default size.
+    },
+  });
+  // const video = document.getElementById('videoInput')
+  // video.srcObject = stream;
+  // // const predictions = await model.estimateHands(document.querySelector("#videoInput"));
+  // video.addEventListener('loadeddata', animate)
 
   document.body.appendChild(video);
 
@@ -45,27 +60,87 @@ async function Run() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  // const geometry = new THREE.BoxGeometry(1, 1, 1);
-  // const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-  // const box = new THREE.Mesh(geometry, material);
-  // scene.add(box);
+  const geometry1 = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+  const material1 = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe:true });
+  const box = new THREE.Mesh(geometry1, material1);
+  scene.add(box);
 
 
   const spheres = [];
 
   for (let i = 0; i < 21; i++) {
-      const geometry = new THREE.SphereGeometry(0.025, 32, 16);
-      const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-      const sphere = new THREE.Mesh(geometry, material);
-      sphere.visible = true;
-      scene.add(sphere);
-      spheres.push(sphere);
+    const geometry = new THREE.SphereGeometry(0.025, 32, 16);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const sphere = new THREE.Mesh(geometry, material);
+    sphere.visible = true;
+    scene.add(sphere);
+    spheres.push(sphere);
   }
 
-    const geometry = new THREE.TorusGeometry( 0.12, 0.01, 16, 100 );
-    const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-    const torus = new THREE.Mesh( geometry, material );
-    scene.add( torus );
+    // const geometry = new THREE.TorusGeometry( 0.12, 0.01, 16, 100 );
+    // const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+    // const torus = new THREE.Mesh( geometry, material );
+    // scene.add( torus );
+
+
+  // async function animate() {
+  //   const predictions = await model.estimateHands(document.querySelector('#videoInput'));
+
+  //   if (predictions.length > 0) {
+
+  //     // console.log("there is a hand here");
+
+  //     for (let i = 0; i < predictions.length; i++) {
+  //       const keypoints = predictions[i].landmarks;
+
+  //       // Log hand keypoints.
+  //       // for (let i = 0; i < keypoints.length; i++) {
+  //       //   const [x, y, z] = keypoints[i];
+
+
+
+
+  //       // }
+
+  //       spheres.forEach((sphere, i) => {
+  //         const [x, y, z] = keypoints[i];
+
+  //         let vec = new THREE.Vector3();
+  //         let pos = new THREE.Vector3();
+
+  //         // vec.set(
+  //         //     (x /100) * 2 - 1,
+  //         //     (-y /100) * 2 + 1,
+  //         //     0.5);
+
+  //         vec.set(
+  //           (x / 1000) * 2 - 1,
+  //           (-y / 1000) * 2 + 1,
+  //           z/1000);
+
+  //         console.log(vec);
+
+  //         vec.unproject(camera);
+  //         vec.sub(camera.position).normalize();
+  //         let distance = -camera.position.z / vec.z;
+  //         pos.copy(camera.position).add(vec.multiplyScalar(distance));
+  //         sphere.position.x = pos.x;
+  //         sphere.position.y = pos.y;
+  //         sphere.position.z = 0;
+
+  //         // const scale = ((distance) - 2) / 20 ;
+  //         // sphere.position.z = scale;
+  //         // console.log(scale);
+  //         // console.log(scale);
+  //       });
+
+  //     }
+  //   }
+  //   requestAnimationFrame(animate);
+  //   renderer.render(scene, camera);
+
+  // }
+
 
   // Note the 'wasmPath' argument. This has to be in sync with how you serve the respective
   // files. See webpack.config.js for an example.
@@ -83,14 +158,43 @@ async function Run() {
     if (res.isHandPresentProb > 0.5) {
       // SetCursorVisibility(false);
       // console.log(res);
-      // console.log(res);
+      // console.log(res.isLeftHandProb);
+
+      var whichHand = '';
+
+      if(res.isLeftHandProb > 0.7){
+        whichHand = 'left';
+      } else if(res.isLeftHandProb < 0.3){
+        whichHand = 'right';
+      }
+
+      // console.log(whichHand);
+
+
+      var vecDistance = spheres[20].position.distanceTo(spheres[4].position);
+
+      if(whichHand === 'right' && res.coordinates[16][0] > res.coordinates[4][0]){
+        console.log("Back");
+      } else if(whichHand === 'right' && res.coordinates[16][0] < res.coordinates[4][0]){
+        console.log("Front");
+      }
+
+
+      var vecSub = new THREE.Vector3(); 
+      vecSub.subVectors(spheres[20].position, spheres[4].position).normalize();
+
+      console.log(vecSub);
+
+      var mx = new THREE.Matrix4().lookAt(spheres[20].position,spheres[4].position,new THREE.Vector3(0,1,0));
+      var qt = new THREE.Quaternion().setFromRotationMatrix(mx);
+
 
       spheres.forEach((sphere, i) => {
       const [ x, y] = res.coordinates[i];
 
         let vec = new THREE.Vector3();
         let pos = new THREE.Vector3();
-        
+
         vec.set(
             x * 2 - 1,
             -y * 2 + 1,
@@ -101,29 +205,55 @@ async function Run() {
         pos.copy(camera.position).add(vec.multiplyScalar(distance));
         sphere.position.x = -pos.x;
         sphere.position.y = pos.y;
+        // sphere.position.z = vecDistance;
         // sphere.position.z = ;
-  
-        const scale = ((distance) - 2) / 20 ;
-        sphere.position.z = scale;
-        // console.log(scale);
-        // console.log(scale);
 
+        // const scale = ((distance) - 2) / 20 ;
+        // sphere.position.z = scale;
+        // console.log(scale);
+        // console.log(scale);
         if(i == 20 ){
-          console.log("wrist = " + scale)
-          torus.position.x = -pos.x;
-          torus.position.y = pos.y;
-          torus.position.z = scale;
-        }
+          // torus.position.x = -pos.x;
+          // torus.position.y = pos.y;
+          
+          var screenRatio = null;
+          var newScale = null;
+          if(video.width > video.height){ // landscape
+            screenRatio = video.width/video.height;
+          } else {
+            screenRatio = video.height/video.width;
+          }
 
-        if(i == 3){
-          console.log("Bilhagh : " + scale);
-        }
+          newScale = vecDistance * screenRatio;
 
+          // torus.scale.set(newScale , newScale, newScale);
+
+          box.position.x = -pos.x;
+          box.position.y = pos.y;
+
+
+
+          // box.scale.set(newScale , newScale, newScale);
+          box.quaternion.copy(qt);
+          // mesh.quaternion.copy( qt );
+          // box.lookAt(vecSub);
+
+          // torus.position.z = vecDistance;
+          // console.log(vecDistance);
+          // const values = res.multiFaceGeometry[0].getPoseTransformMatrix().getPackedDataList();
+          // var transformMatrix = new THREE.Matrix4().set(...values);
+          // transformMatrix.invert();
+          // model.quaternion.setFromRotationMatrix(
+          //   transformMatrix
+          // );
+        }
 
         sphere.visible = true;
         // sphere.position.set(handWorldLandmarks[i].x, -handWorldLandmarks[i].y, -handWorldLandmarks[i].z);
       });
-  
+
+      // console.log(spheres[20].position.distanceTo(spheres[4].position));
+
       renderer.render(scene, camera);
       return;
     }
@@ -144,7 +274,7 @@ async function Run() {
     // We only use one coordinate here...
     // SetCursorPosition(...res.coordinates[0]);
 
-    
+
 
   });
 }
