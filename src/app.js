@@ -180,13 +180,26 @@ async function Run() {
       }
 
 
+      // Static rotation 
       var vecSub = new THREE.Vector3(); 
-      vecSub.subVectors(spheres[20].position, spheres[4].position).normalize();
+      vecSub.subVectors(spheres[20].position, spheres[4].position);
 
-      console.log(vecSub);
+
+      const wristToPalm = spheres[20].position.distanceTo(spheres[4].position)
+      const palmWidth = spheres[4].position.distanceTo(spheres[16].position)
+
+      console.log(`degree: ${Number.parseFloat(wristToPalm / palmWidth) * 18 - 20}`);
+
 
       var mx = new THREE.Matrix4().lookAt(spheres[20].position,spheres[4].position,new THREE.Vector3(0,1,0));
       var qt = new THREE.Quaternion().setFromRotationMatrix(mx);
+
+
+      
+
+
+      console.log()
+
 
 
       spheres.forEach((sphere, i) => {
@@ -226,7 +239,7 @@ async function Run() {
 
           newScale = vecDistance * screenRatio;
 
-          // torus.scale.set(newScale , newScale, newScale);
+          box.scale.set(newScale , newScale, newScale);
 
           box.position.x = -pos.x;
           box.position.y = pos.y;

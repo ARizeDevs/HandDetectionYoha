@@ -19,8 +19,14 @@ async function Run() {
 //     (rec, total) => {
 //       console.log('Download progress: ' + (rec / total) * 100 + '%');
 //     });
-
-  const model = await handpose.load();
+console.log(handPoseDetection.SupportedModels);
+const model = handPoseDetection.SupportedModels.MediaPipeHands;
+const detectorConfig = {
+  runtime: 'tfjs', // or 'tfjs'
+  modelType: 'lite',
+  maxNumHanbds: '1'
+};
+detector = await handPoseDetection.createDetector(model, detectorConfig);
 
   // Setup video feed.
 //   const streamRes = await yoha.CreateMaxFpsMaxResStream();
@@ -83,7 +89,7 @@ async function Run() {
 
 
   async function animate() {
-    const predictions = await model.estimateHands(document.querySelector('#videoInput'));
+  const predictions = await detector.estimateHands(document.querySelector('#videoInput'));
 
     if (predictions.length > 0) {
 
