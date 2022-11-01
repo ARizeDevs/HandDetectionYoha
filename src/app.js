@@ -61,7 +61,7 @@ async function Run() {
   document.body.appendChild(renderer.domElement);
 
   const geometry1 = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-  const material1 = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe:true });
+  const material1 = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
   const box = new THREE.Mesh(geometry1, material1);
   scene.add(box);
 
@@ -77,10 +77,10 @@ async function Run() {
     spheres.push(sphere);
   }
 
-    // const geometry = new THREE.TorusGeometry( 0.12, 0.01, 16, 100 );
-    // const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-    // const torus = new THREE.Mesh( geometry, material );
-    // scene.add( torus );
+    const geometry = new THREE.TorusGeometry( 0.12, 0.01, 16, 100 );
+    const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+    const torus = new THREE.Mesh( geometry, material );
+    scene.add( torus );
 
 
   // async function animate() {
@@ -156,9 +156,6 @@ async function Run() {
   // when trying to move the cursor towards the border of the viewport.
   yoha.StartTfjsWasmEngine({}, wasmConfig, video, modelFiles, res => {
     if (res.isHandPresentProb > 0.5) {
-      // SetCursorVisibility(false);
-      // console.log(res);
-      // console.log(res.isLeftHandProb);
 
       var whichHand = '';
 
@@ -168,128 +165,98 @@ async function Run() {
         whichHand = 'right';
       }
 
-      // console.log(whichHand);
+      // console.log(res.isLeftHandProb);
 
 
       var vecDistance = spheres[20].position.distanceTo(spheres[4].position);
 
       if(whichHand === 'right' && res.coordinates[16][0] > res.coordinates[4][0]){
-        console.log("Back");
+        // console.log("Back");
       } else if(whichHand === 'right' && res.coordinates[16][0] < res.coordinates[4][0]){
-        console.log("Front");
+        // console.log("Front");
       }
-
-
       // Static rotation 
       var vecSub = new THREE.Vector3(); 
       vecSub.subVectors(spheres[20].position, spheres[4].position);
 
-
-      const wristToPalm = spheres[20].position.distanceTo(spheres[4].position)
-      const palmWidth = spheres[4].position.distanceTo(spheres[16].position)
-
-      console.log(`degree: ${Number.parseFloat(wristToPalm / palmWidth) * 18 - 20}`);
-
-
-      var mx = new THREE.Matrix4().lookAt(spheres[20].position,spheres[4].position,new THREE.Vector3(0,1,0));
+      var mx = new THREE.Matrix4().lookAt(spheres[20].position,spheres[9].position,new THREE.Vector3(0,1,0));
       var qt = new THREE.Quaternion().setFromRotationMatrix(mx);
 
-
-      
-
-
-      console.log()
-
-
-
       spheres.forEach((sphere, i) => {
-      const [ x, y] = res.coordinates[i];
+        const [ x, y] = res.coordinates[i];
 
-        let vec = new THREE.Vector3();
-        let pos = new THREE.Vector3();
+          let vec = new THREE.Vector3();
+          let pos = new THREE.Vector3();
 
-        vec.set(
-            x * 2 - 1,
-            -y * 2 + 1,
-            0.5);
-        vec.unproject(camera);
-        vec.sub(camera.position).normalize();
-        let distance = -camera.position.z / vec.z;
-        pos.copy(camera.position).add(vec.multiplyScalar(distance));
-        sphere.position.x = -pos.x;
-        sphere.position.y = pos.y;
-        // sphere.position.z = vecDistance;
-        // sphere.position.z = ;
+          vec.set(x * 2 - 1, -y * 2 + 1, 0.5);
+          vec.unproject(camera);
+          vec.sub(camera.position).normalize();
+          let distance = -camera.position.z / vec.z;
+          pos.copy(camera.position).add(vec.multiplyScalar(distance));
+          sphere.position.x = -pos.x;
+          sphere.position.y = pos.y;
 
-        // const scale = ((distance) - 2) / 20 ;
-        // sphere.position.z = scale;
-        // console.log(scale);
-        // console.log(scale);
-        if(i == 20 ){
-          // torus.position.x = -pos.x;
-          // torus.position.y = pos.y;
-          
-          var screenRatio = null;
-          var newScale = null;
-          if(video.width > video.height){ // landscape
-            screenRatio = video.width/video.height;
-          } else {
-            screenRatio = video.height/video.width;
+          if(i == 20 ){
+
+            var screenRatio = null;
+            var newScale = null;
+            if(video.width > video.height){ // landscape
+              screenRatio = video.width/video.height;
+            } else {
+              screenRatio = video.height/video.width;
+            }
+
+            newScale = vecDistance * screenRatio;
+
+            box.scale.set(newScale , newScale, newScale);
+
+            box.position.x = -pos.x;
+            box.position.y = pos.y;
+            box.quaternion.copy(qt);
+
+
+            // var yDiff = spheres[9].position.y - spheres[20].position.y;
+            // var xDiff = spheres[9].position.x - spheres[20].position.x;
+
+            // var angle = (Math.atan2(yDiff,xDiff) * 180.0/Math.PI);
+            // var angle2 = new THREE.Euler(0,0,angle);
+            // box.setRotationFromEuler(angle2);
+
+
+            var rotationVec = new THREE.Vector3
+            rotationVec.subVectors(spheres[4].position, spheres[16].position);
+            console.log(rotationVec.x);
+            // var _xRotationDegree = map(rotationVec.x,[-1,1],[0,90]);
+            // console.log(_xRotationDegree);
+            box.rotation.z += (rotationVec.x) * screenRatio;
+
           }
 
-          newScale = vecDistance * screenRatio;
-
-          box.scale.set(newScale , newScale, newScale);
-
-          box.position.x = -pos.x;
-          box.position.y = pos.y;
+          if(i == 16){
+            torus.position.x = -pos.x;
+            torus.position.y = pos.y;
+          }
 
 
+          sphere.visible = true;
+        });
 
-          // box.scale.set(newScale , newScale, newScale);
-          box.quaternion.copy(qt);
-          // mesh.quaternion.copy( qt );
-          // box.lookAt(vecSub);
+        renderer.render(scene, camera);
+        return;
+      }
 
-          // torus.position.z = vecDistance;
-          // console.log(vecDistance);
-          // const values = res.multiFaceGeometry[0].getPoseTransformMatrix().getPackedDataList();
-          // var transformMatrix = new THREE.Matrix4().set(...values);
-          // transformMatrix.invert();
-          // model.quaternion.setFromRotationMatrix(
-          //   transformMatrix
-          // );
-        }
-
-        sphere.visible = true;
-        // sphere.position.set(handWorldLandmarks[i].x, -handWorldLandmarks[i].y, -handWorldLandmarks[i].z);
-      });
-
-      // console.log(spheres[20].position.distanceTo(spheres[4].position));
-
-      renderer.render(scene, camera);
-      return;
-    }
-    // SetCursorVisibility(true);
-
-    // console.log(res);
-
-    // Change color depending on gesture.
-    if (res.poses.fistProb > thresholds.FIST) {
-    //   SetCursorColor('red');
-    } else if (res.poses.pinchProb > thresholds.PINCH) {
-    //   SetCursorColor('green');
-    } else {
-    //   SetCursorColor('blue');
-    }
-
-    // Change cursor position.
-    // We only use one coordinate here...
-    // SetCursorPosition(...res.coordinates[0]);
-
-
-
+      if (res.poses.fistProb > thresholds.FIST) {
+        //  do something with FIST
+      } else if (res.poses.pinchProb > thresholds.PINCH) {
+        //  do something with Pinch
+      } 
   });
+
+  function map (value, oldRange, newRange) {
+    var newValue = (value - oldRange[0]) * (newRange[1] - newRange[0]) / (oldRange[1] - oldRange[0]) + newRange[0];
+    return Math.min(Math.max(newValue, newRange[0]) , newRange[1]);
+  }
+
 }
 
 Run();
