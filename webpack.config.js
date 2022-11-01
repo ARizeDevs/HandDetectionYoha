@@ -35,6 +35,7 @@ module.exports = {
     path: environment.paths.output,
   },
   devServer: {
+    host: '0.0.0.0',
     server: 'https',
     static: {
       directory: path.join(__dirname, 'public'),

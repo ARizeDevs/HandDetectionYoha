@@ -57,7 +57,7 @@ async function Run() {
 
   const renderer = new THREE.WebGLRenderer({ alpha: true });
   renderer.setClearColor(0x000000, 0); // the default
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(video.width, video.height);
   document.body.appendChild(renderer.domElement);
 
   const geometry1 = new THREE.BoxGeometry(0.5, 0.5, 0.5);
