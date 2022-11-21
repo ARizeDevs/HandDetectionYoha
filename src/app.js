@@ -228,8 +228,9 @@ async function Run() {
             console.log(rotationVec.x);
             // var _xRotationDegree = map(rotationVec.x,[-1,1],[0,90]);
             // console.log(_xRotationDegree);
-            box.rotation.z += (rotationVec.x) * screenRatio;
-            box.rotation.z += (rotationVec.y) * screenRatio;
+            // box.rotation.z += (rotationVec.x) * screenRatio;
+            // box.rotation.z += (rotationVec.y) * screenRatio;
+            box.setRotationFromAxisAngle(new THREE.Vector3(0,1,0) , rotationVec.x);
 
           }
 
